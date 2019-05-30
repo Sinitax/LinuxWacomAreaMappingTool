@@ -13,7 +13,7 @@ Run the `custommapping.sh` script to configure a custom area mapping using a gra
 
 Run the `setsize.sh` script to configure a custom area mapping from the commandline using relative values
 
-![Screenshot](https://raw.githubusercontent.com/Sinitax/LinuxWacomAreaMappingTool/data/screenshot.png)
+![Screenshot](https://github.com/Sinitax/LinuxWacomAreaMappingTool/raw/master/data/screenshot.png)
 
 ### Dependencies
 
