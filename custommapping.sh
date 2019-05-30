@@ -10,4 +10,4 @@ echo ""
 read -n 1 -s -r -p "Press Any Key to Continue.."
 echo ""
 
-$SCRIPTPATH/wacom-tool $SCRIPTPATH
+$SCRIPTPATH/data/wacom-tool $SCRIPTPATH
