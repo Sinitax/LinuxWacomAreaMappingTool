@@ -2,6 +2,8 @@
 
 ### Usage
 
+Add the dimensions of your graphic tablet to the `settings` file in cm.
+
 Run the `setmode.sh` script to enable on of the following modes:
 
 - **precision mode** : tablet area maps 1:1 to your screen
