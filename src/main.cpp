@@ -172,7 +172,6 @@ void drawCircle(int x, int y, int r) {
 
 void drawBackground() {
     // draw screenshot
-    glClear(GL_COLOR_BUFFER_BIT);
     glDrawPixels(windowWidth, windowHeight, GL_RGB, GL_UNSIGNED_BYTE, screenshot);
 
     // draw grid

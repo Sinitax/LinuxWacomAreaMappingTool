@@ -10,6 +10,7 @@ reloffy=$2
 relsizex=$3
 relsizey=$4
 
+# get tablet settings
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 source $SCRIPTPATH/settings
 
