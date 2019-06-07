@@ -2,21 +2,26 @@
 #include <cmath>
 #include <fstream>
 #include <cstdlib>
+#include <cstring>
 
 #include <GL/gl.h>
-#include <GL/freeglut.h>
 #include <GL/glu.h>
+#include <GL/freeglut.h>
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 
-int windowWidth,
+
+int screenWidth,
+    screenHeight,
+    windowWidth,
     windowHeight;
 
 Display *display;
 
-unsigned char* screenshot;
+static GLuint screenshotTexture;
 
+// update vars on every event, but only render when isReady is true (every framecap frames)
 bool isReady = false;
 
 int getShift (long mask) {
@@ -49,7 +54,7 @@ bool ratioPressed = false;
 
 char* filePath;
 
-const int framecap = 30;
+const int framecap = 40;
 
 // system command
 
@@ -172,10 +177,24 @@ void drawCircle(int x, int y, int r) {
 
 void drawBackground() {
     // draw screenshot
-    glDrawPixels(windowWidth, windowHeight, GL_RGB, GL_UNSIGNED_BYTE, screenshot);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glEnable(GL_TEXTURE_2D);
+
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    glBindTexture(GL_TEXTURE_2D, screenshotTexture);
+
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0, 0.0); glVertex2f(0.0, 0.0);
+    glTexCoord2f(0.0, 1.0); glVertex2f(0.0, windowHeight);
+    glTexCoord2f(1.0, 1.0); glVertex2f(windowWidth, windowHeight);
+    glTexCoord2f(1.0, 0.0); glVertex2f(windowWidth, 0.0);
+    glEnd();
+
+    glDisable(GL_TEXTURE_2D);
+    // glDrawPixels(windowWidth, windowHeight, GL_RGB, GL_UNSIGNED_BYTE, screenshot);
 
     // draw grid
-    glColor4f(0.2f, 0.2f, 0.2f, 1.f);
+    glColor4f(0.2f, 0.2f, 0.2f, 0.7f);
     const int lineSpacing = 40;
     int cols = windowWidth / lineSpacing + 1;
     int rows = windowHeight / lineSpacing + 1;
@@ -218,12 +237,17 @@ void updateDisplay() {
     if (!isReady) return;
     drawBackground();
     drawTabletArea();
-    glFlush();
+    glutSwapBuffers();
     isReady = false;
 }
 
 void onResize(int width, int height) {
-    if (width != windowWidth || windowHeight != height) glutReshapeWindow(windowWidth, windowHeight);
+    if (width != windowWidth || windowHeight != height) {
+        glutReshapeWindow(windowWidth, windowHeight);
+        isReady = true;
+        updateDisplay();
+        glutSwapBuffers();
+    }
 }
 
 //setup
@@ -231,25 +255,27 @@ void onResize(int width, int height) {
 void initGlut(int argc, char** argv) {
     // glutInit(nullptr, 0);
     glutInit(&argc, argv);
-    glutInitDisplayMode( GLUT_RGB | GLUT_SINGLE);
+    glutInitDisplayMode( GLUT_RGB | GLUT_DOUBLE);
 
-    windowWidth = glutGet(GLUT_SCREEN_WIDTH) / 2.f;
-    windowHeight = glutGet(GLUT_SCREEN_HEIGHT) / 2.f;
+    screenWidth = glutGet(GLUT_SCREEN_WIDTH);
+    screenHeight = glutGet(GLUT_SCREEN_HEIGHT);
+    windowWidth = screenWidth / 2.f;
+    windowHeight = screenHeight / 2.f;
 
     // get screenshot before window opens
     display = XOpenDisplay((char *) NULL);
-    XImage *image = XGetImage(display, XRootWindow(display, XDefaultScreen(display)), 0, 0, windowWidth * 2, windowHeight * 2, AllPlanes, XYPixmap);
+    XImage *image = XGetImage(display, XRootWindow(display, XDefaultScreen(display)), 0, 0, screenWidth, screenHeight, AllPlanes, XYPixmap);
 
     int blue_shift = getShift(image->blue_mask);
     int red_shift = getShift(image->red_mask);
     int green_shift = getShift(image->green_mask);
 
-    screenshot = new unsigned char[3 * windowWidth * windowHeight];
+    unsigned char* screenshot = new unsigned char[3 * screenWidth * screenHeight];
 
-    for (int x = 0; x < windowWidth; x++) {
-        for (int y = 0; y < windowHeight; y++) {
-            unsigned long pixel = XGetPixel(image, x * 2, (windowHeight - 1 - y) * 2);
-            unsigned char* pix = screenshot + 3 * (y * windowWidth + x);
+    for (int x = 0; x < screenWidth; x++) {
+        for (int y = 0; y < screenHeight; y++) {
+            unsigned long pixel = XGetPixel(image, x, y);
+            unsigned char* pix = screenshot + 3 * (y * screenWidth + x);
             pix[0] = ((pixel & image->red_mask) >> red_shift) / 3.f;
             pix[1] = ((pixel & image->green_mask) >> green_shift) / 3.f;
             pix[2] = ((pixel & image->blue_mask) >> blue_shift) / 3.f;
@@ -269,17 +295,30 @@ void initGlut(int argc, char** argv) {
 
     glClearColor(0, 0, 0, 0);
     gluOrtho2D(0, windowWidth, windowHeight, 0);
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glShadeModel(GL_FLAT);
+
+    glGenTextures(1, &screenshotTexture);
+    glBindTexture(GL_TEXTURE_2D, screenshotTexture);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, screenWidth, screenHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, screenshot);
+
+    delete [] screenshot;
 }
 
 void cleanUp() {
-    XFree(screenshot);
 }
 
 int main(int argc, char** argv) {
-    if (argc != 2) {
-        std::cout << "Specify path of setsize.sh script!" << std::endl;
+    if (argc != 2 && argc != 6) {
+        std::cout << "USAGE: " << argv[0] << " <path of setsize.sh> [<prev_x> <prev_y> <prev_width> <prev_height>]!" << std::endl;
         return 1;
     }
 
@@ -294,6 +333,7 @@ int main(int argc, char** argv) {
         return 1;
     }
 
+    // parse first two lines of file
     float tabletWidthRaw, tabletHeightRaw;
     char floatStrings[2][100];
     int lineCounter = 0, 
@@ -315,7 +355,7 @@ int main(int argc, char** argv) {
             beginRead = false;
         }
     }
-
+    ifile.close();
     tabletWidthRaw = atof(floatStrings[0]);
     tabletHeightRaw = atof(floatStrings[1]);
 
@@ -323,10 +363,28 @@ int main(int argc, char** argv) {
 
     initGlut(argc, argv);
 
-    tabletWidth = windowWidth / 2;
-    tabletHeight = windowHeight / 2;
-    tabletX = windowWidth / 4;
-    tabletY = windowHeight / 4;
+    if (argc == 6) {
+        // check if arguments are numbers
+        long int nums[4];
+        char* pEnd;
+        for (int i = 2; i < 6; i++) {
+            nums[i-2] = strtol(argv[i], &pEnd, 10);
+            if (nums[i-2] == 0 && argv[i][0] != '0') {
+                std::cout << "invalid format for screen pixel values" << std::endl;
+                return 1;
+            }
+        }
+        // since window dims are half of screen dims
+        tabletX = nums[0] / 2;
+        tabletY = nums[1] / 2;
+        tabletWidth = nums[2] / 2;
+        tabletHeight = nums[3] / 2;
+    } else {
+        tabletX = windowWidth / 4;
+        tabletY = windowHeight / 4;
+        tabletWidth = windowWidth / 2;
+        tabletHeight = windowHeight / 2;
+    }
 
     refresh(0);
     glutMainLoop();

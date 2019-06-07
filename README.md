@@ -17,13 +17,14 @@ Run the `custommapping.sh` script to configure a custom area mapping using a gra
 
 ### Dependencies
 
+- libx11-dev
 - libwacom (xsetwacom)
+- libgl1-mesa-dev (opengl)
+- freeglut3-dev
 - bash and bc for math
 - xrandr
 
 ### Credits
 
 - Original gist for `setmode.sh` script by [Deevad](https://github.com/Deevad)
-
-
 

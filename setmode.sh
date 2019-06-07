@@ -61,18 +61,26 @@ if [ ! -z $tabletpad ];then
     xsetwacom set "$tabletpad" MapToOutput "HEAD-0"
 fi
 
+# apply settings
 if [ $1 == "precision" ]; then
-  # Precision mode: full tablet area maps 1:1 to a portion of the screen
-  echo "Precision mode"
-  xsetwacom set "$tabletstylus" Area 0 0 "$Xtabletmaxarea" "$Ytabletmaxarea"
-  xsetwacom set "$tableteraser" Area 0 0 "$Xtabletmaxarea" "$Ytabletmaxarea"
-  xsetwacom set "$tabletstylus" MapToOutput "$XtabletactiveareaPIX"x"$YtabletactiveareaPIX"+"$XOffsettabletactiveareaPIX"+"$YOffsettabletactiveareaPIX"
-  notify-send -i /usr/share/icons/gnome/22x22/devices/input-tablet.png "Precision mode" "$XtabletactiveareaPIX x $YtabletactiveareaPIX part-of-screen"
+    # Precision mode: full tablet area maps 1:1 to a portion of the screen
+    echo "Precision mode"
+    xsetwacom set "$tabletstylus" Area 0 0 "$Xtabletmaxarea" "$Ytabletmaxarea"
+    xsetwacom set "$tableteraser" Area 0 0 "$Xtabletmaxarea" "$Ytabletmaxarea"
+    xsetwacom set "$tabletstylus" MapToOutput "$XtabletactiveareaPIX"x"$YtabletactiveareaPIX"+"$XOffsettabletactiveareaPIX"+"$YOffsettabletactiveareaPIX"
+    notify-send -i /usr/share/icons/gnome/22x22/devices/input-tablet.png "Precision mode" "$XtabletactiveareaPIX x $YtabletactiveareaPIX part-of-screen"
+
+    # save settings to ".lastset"
+    echo "$XOffsettabletactiveareaPIX $YOffsettabletactiveareaPIX $XtabletactiveareaPIX $YtabletactiveareaPIX" > "$SCRIPTPATH/.lastset"
 else
-  # Fullscreen mode; tablet area maps to full area of screen with ratio correction
-  echo "Full-screen mode with ratio correction"
-  xsetwacom set "$tabletstylus" Area 0 0 "$Xtabletmaxarea" "$Ytabletmaxarearatiosized"
-  xsetwacom set "$tableteraser" Area 0 0 "$Xtabletmaxarea" "$Ytabletmaxarearatiosized"
-  xsetwacom set "$tabletstylus" MapToOutput "$Xscreenpix"x"$Yscreenpix"+0+0
-  notify-send -i /usr/share/icons/gnome/22x22/devices/input-tablet.png "Normal mode" "full-screen"
+    # Fullscreen mode; tablet area maps to full area of screen with ratio correction
+    echo "Full-screen mode with ratio correction"
+    xsetwacom set "$tabletstylus" Area 0 0 "$Xtabletmaxarea" "$Ytabletmaxarearatiosized"
+    xsetwacom set "$tableteraser" Area 0 0 "$Xtabletmaxarea" "$Ytabletmaxarearatiosized"
+    xsetwacom set "$tabletstylus" MapToOutput "$Xscreenpix"x"$Yscreenpix"+0+0
+    notify-send -i /usr/share/icons/gnome/22x22/devices/input-tablet.png "Normal mode" "full-screen"
+
+    # save settings to ".lastset"
+    echo "0 0 $Xscreenpix $Yscreenpix" > "$SCRIPTPATH/.lastset"
 fi
+

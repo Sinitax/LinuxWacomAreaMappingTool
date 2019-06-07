@@ -10,8 +10,9 @@ reloffy=$2
 relsizex=$3
 relsizey=$4
 
-# get tablet settings
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
+
+# get tablet settings
 source $SCRIPTPATH/settings
 
 # get name of tablet devices
@@ -68,7 +69,11 @@ if [ ! -z $tabletpad ];then
     xsetwacom set "$tabletpad" MapToOutput "HEAD-0"
 fi
 
+# apply settings
 xsetwacom set "$tabletstylus" Area 0 0 "$Xtabletmaxarea" "$Ytabletmaxarea"
 xsetwacom set "$tableteraser" Area 0 0 "$Xtabletmaxarea" "$Ytabletmaxarea"
 xsetwacom set "$tabletstylus" MapToOutput "$XtabletactiveareaPIX"x"$YtabletactiveareaPIX"+"$XOffsettabletactiveareaPIX"+"$YOffsettabletactiveareaPIX"
 notify-send -i /usr/share/icons/gnome/22x22/devices/input-tablet.png "Custom mode" "$XtabletactiveareaPIX x $YtabletactiveareaPIX"
+
+# save settings in .lastset
+echo "$XOffsettabletactiveareaPIX $YOffsettabletactiveareaPIX $XtabletactiveareaPIX $YtabletactiveareaPIX" > "$SCRIPTPATH/.lastset"
