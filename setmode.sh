@@ -62,14 +62,14 @@ if [ ! -z $tabletpad ];then
 fi
 
 if [ $1 == "precision" ]; then
-  # Here Precision mode; full tablet area in cm are 1:1 on a portion of the screen.
+  # Precision mode: full tablet area maps 1:1 to a portion of the screen
   echo "Precision mode"
   xsetwacom set "$tabletstylus" Area 0 0 "$Xtabletmaxarea" "$Ytabletmaxarea"
   xsetwacom set "$tableteraser" Area 0 0 "$Xtabletmaxarea" "$Ytabletmaxarea"
   xsetwacom set "$tabletstylus" MapToOutput "$XtabletactiveareaPIX"x"$YtabletactiveareaPIX"+"$XOffsettabletactiveareaPIX"+"$YOffsettabletactiveareaPIX"
   notify-send -i /usr/share/icons/gnome/22x22/devices/input-tablet.png "Precision mode" "$XtabletactiveareaPIX x $YtabletactiveareaPIX part-of-screen"
 else
-  # Here normal mode; tablet map to Fullscreen with ratio correction
+  # Fullscreen mode; tablet area maps to full area of screen with ratio correction
   echo "Full-screen mode with ratio correction"
   xsetwacom set "$tabletstylus" Area 0 0 "$Xtabletmaxarea" "$Ytabletmaxarearatiosized"
   xsetwacom set "$tableteraser" Area 0 0 "$Xtabletmaxarea" "$Ytabletmaxarearatiosized"
