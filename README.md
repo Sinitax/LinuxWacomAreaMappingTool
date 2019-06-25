@@ -21,7 +21,7 @@ Run the `custommapping.sh` script to configure a custom area mapping using a gra
 
 By default the settings will only stay in effect until reboot. To make the changes persistent, one must recover the last set values when the tablet is plugged in.
 
-There is an example `rc.local` file included in the data directory to demonstrate one possible implementation.
+There is an example `tablet-reset.sh` script included in the data directory which can be configured as a startup application.
 
 ### Dependencies
 
