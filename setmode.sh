@@ -14,6 +14,10 @@ tabletstylus=$(xsetwacom --list | grep STYLUS | sed -r 's/  .*//g')
 tableteraser=$(xsetwacom --list | grep ERASER | sed -r 's/  .*//g')
 tabletpad=$(xsetwacom --list | grep PAD | sed -r 's/    .*//g')
 
+if [ -z $tabletstylus -o -z $tableteraser ]; then
+    exit # tablet not plugged in
+fi
+
 # reset area
 xsetwacom --set "$tabletstylus" ResetArea
 xsetwacom --set "$tableteraser" ResetArea

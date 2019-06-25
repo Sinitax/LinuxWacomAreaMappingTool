@@ -11,9 +11,17 @@ Run the `setmode.sh` script to enable on of the following modes:
 
 Run the `setsize.sh` script to configure a custom area mapping from the commandline using relative values
 
+Run the `recover.sh` script to re-use the settings last set
+
 Run the `custommapping.sh` script to configure a custom area mapping using a graphical interface
 
 ![Screenshot](https://github.com/Sinitax/LinuxWacomAreaMappingTool/raw/master/data/screenshot.png)
+
+### Persistency
+
+By default the settings will only stay in effect until reboot. To make the changes persistent, one must recover the last set values when the tablet is plugged in.
+
+There is an example `rc.local` file included in the data directory to demonstrate one possible implementation.
 
 ### Dependencies
 
@@ -21,7 +29,7 @@ Run the `custommapping.sh` script to configure a custom area mapping using a gra
 - libwacom (xsetwacom)
 - libgl1-mesa-dev (opengl)
 - freeglut3-dev
-- bash and bc for math
+- bc cmdlet
 - xrandr
 
 ### Credits
