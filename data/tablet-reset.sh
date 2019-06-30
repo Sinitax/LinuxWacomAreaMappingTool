@@ -1,8 +1,7 @@
 #!/bin/bash
 
-# ... other programs
-
-repopath=""
+SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
+repopath="$(dirname $SCRIPTPATH)/"
 
 # check if graphics tablet is already plugged in
 tabletstylus=$(xsetwacom --list | grep STYLUS | sed -r 's/  .*//g')
