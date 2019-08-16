@@ -1,12 +1,13 @@
 #!/bin/bash
 
-SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
-repopath="$(dirname $SCRIPTPATH)/"
+REALPATH="$(readlink -f "$0")" # binary in /usr/bin is a symlink
+SCRIPTPATH="$(cd "$(dirname "$REALPATH")" ; pwd -P )"
+REPOPATH="$SCRIPTPATH/.." # /pentablet/data/*bin*
 
 # check if graphics tablet is already plugged in
 tabletstylus=$(xsetwacom --list | grep STYLUS | sed -r 's/  .*//g')
 if [ -n "$tabletstylus" ];then
-    bash "$repopath/recover.sh"
+    bash "$REPOPATH/recover.sh"
     exit
 fi
 
@@ -21,7 +22,7 @@ while read -r directory events filename; do
         tabletstylus=$(xsetwacom --list | grep STYLUS | sed -r 's/  .*//g')
         if [ -n "$tabletstylus" ]; then
             # run script to set to precision mode
-            bash "$repopath/recover.sh"
+            bash "$REPOPATH/recover.sh"
             exit
         fi
     fi
