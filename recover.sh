@@ -2,6 +2,11 @@
 
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 
+if [ ! -f "$SCRIPTPATH/.lastset" ]; then
+    echo "Active tablet area must be configured for it to be recovered"
+    exit 1
+fi
+
 lastset="$(cat "$SCRIPTPATH/.lastset")"
 IFS=' ' read -ra oldvals <<< "$lastset"
 

@@ -15,6 +15,7 @@ tableteraser=$(xsetwacom --list | grep ERASER | sed -r 's/  .*//g')
 tabletpad=$(xsetwacom --list | grep PAD | sed -r 's/    .*//g')
 
 if [ -z $tabletstylus -o -z $tableteraser ]; then
+    echo "Cant find tablet!"
     exit # tablet not plugged in
 fi
 
