@@ -23,7 +23,7 @@ echo ""
 
 # check if settings have been set before
 if [ -f "$SCRIPTPATH/.lastset" ]; then
-    $SCRIPTPATH/src/wacom-tool $SCRIPTPATH $(cat "$SCRIPTPATH/.lastset")
+    $SCRIPTPATH/src/tablet-tool $SCRIPTPATH $(cat "$SCRIPTPATH/.lastset")
 else
-    $SCRIPTPATH/src/wacom-tool $SCRIPTPATH
+    $SCRIPTPATH/src/tablet-tool $SCRIPTPATH
 fi
