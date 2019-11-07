@@ -1,0 +1,10 @@
+tabletareawidthCM=21.6
+tabletareaheightCM=13.5
+
+# IMPORTANT: DONT change the spacing of the lines
+# example sizes:
+# wacom one      : 21.6x13.6
+# xppen star 640 : 16x10
+
+tabletname=""
+correctionscalefactor=1

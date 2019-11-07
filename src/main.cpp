@@ -326,7 +326,7 @@ int main(int argc, char** argv) {
 
     // read settings from file
     char buffer[200];
-    sprintf(buffer, "%s/settings", filePath);
+    snprintf(buffer, 200, "%s/.settings", filePath);
     std::ifstream ifile(buffer);
     if (!ifile.is_open()) {
         std::cout << "cant read from 'settings' file ... exiting!" << std::endl;

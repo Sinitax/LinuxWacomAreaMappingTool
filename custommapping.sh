@@ -27,5 +27,3 @@ if [ -f "$SCRIPTPATH/.lastset" ]; then
 else
     $SCRIPTPATH/src/wacom-tool $SCRIPTPATH
 fi
-
-# For now only settings which have been set with the provided utilities can be cached for the gui program. This is because the xsetwacom parameter used to apply the settings "MapToOutput" is write-only.

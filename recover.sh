@@ -7,18 +7,16 @@ if [ ! -f "$SCRIPTPATH/.lastset" ]; then
     exit 1
 fi
 
+source $SCRIPTPATH/loadsettings.sh
+
 lastset="$(cat "$SCRIPTPATH/.lastset")"
 IFS=' ' read -ra oldvals <<< "$lastset"
 
-# get screen area vars
-Xscreenpix=$(xrandr --current | grep '*' | uniq | awk '{print $1}' | cut -d 'x' -f1)
-Yscreenpix=$(xrandr --current | grep '*' | uniq | awk '{print $1}' | cut -d 'x' -f2)
-
 # convert to relative
-reloffx=$(bc <<< "scale=4; ${oldvals[0]} / $Xscreenpix")
-reloffy=$(bc <<< "scale=4; ${oldvals[1]} / $Yscreenpix")
-relwidth=$(bc <<< "scale=4; ${oldvals[2]} / $Xscreenpix")
-relheight=$(bc <<< "scale=4; ${oldvals[3]} / $Yscreenpix")
+reloffx=$(bc <<< "scale=4; ${oldvals[0]} / $screenwidthPX")
+reloffy=$(bc <<< "scale=4; ${oldvals[1]} / $screenheightPX")
+relwidth=$(bc <<< "scale=4; ${oldvals[2]} / $screenwidthPX")
+relheight=$(bc <<< "scale=4; ${oldvals[3]} / $screenheightPX")
 
 # set size
 $SCRIPTPATH/setsize.sh $reloffx $reloffy $relwidth $relheight
