@@ -2,6 +2,11 @@
 
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 
+if [ ! -e $SCRIPTPATH/.settings ];then
+    echo "Copy .settings-template to .settings and modify it."
+    exit 1
+fi
+
 source $SCRIPTPATH/.settings
 
 if [ -z "$tabletname" -o -z "$tabletareawidthCM" -o -z "$tabletareaheightCM" ]; then

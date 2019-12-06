@@ -2,11 +2,16 @@
 
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 
+if [ ! -e $SCRIPTPATH/.settings ];then
+    echo "Copy .settings-template to .settings and modify it."
+    exit 1
+fi
+
 # load settings
-source $SCRIPTPATH/settings
+source $SCRIPTPATH/.settings
 
 # check if binary has been built
-if [ ! -f $SCRIPTPATH/src/wacom-tool ]; then
+if [ ! -f $SCRIPTPATH/src/tablet-tool ]; then
     echo "[!] You must first build the binary in the src directory"
     exit 1
 fi
