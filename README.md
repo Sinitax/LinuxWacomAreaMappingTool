@@ -6,11 +6,11 @@ A graphical tool to configure graphic tablets through xinput.
 
 Graphical Configuration:
 
-![Graphical Interface](/data/interface.gif =600x340)
+<img alt="Graphical Interface" src="/data/interface.gif" width="600" height="340">
 
 1 to 1 Mapping:
 
-![Precision Mapping](/data/precision.gif =600x340)
+<img alt="Precision Mapping" src="/data/precision.gif" width="600" height="340">
 
 ### Dependencies
 
