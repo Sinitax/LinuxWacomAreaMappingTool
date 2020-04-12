@@ -1,36 +1,34 @@
 #!/bin/bash
 
-SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
+SCRIPTPATH="$(dirname "$(realpath "$0")")"
 
 if [ ! -e $SCRIPTPATH/.settings ];then
-    echo "Copy .settings-template to .settings and modify it."
+    echo "[X] Copy .settings-template to .settings and modify it."
     exit 1
 fi
 
 source $SCRIPTPATH/.settings
 
-if [ -z "$tabletname" -o -z "$tabletareawidthCM" -o -z "$tabletareaheightCM" ]; then
+if [ -z "$tabletName" -o -z "$tabletWidthMM" -o -z "$tabletHeightMM" -o -z "$display" ]; then
     echo "[X] Settings file not complete!"
     exit 1
 fi
 
-# get screen area vars
-screenwidthPX=$(xrandr --current | grep '*' | uniq | awk '{print $1}' | cut -d 'x' -f1)
-screenheightPX=$(xrandr --current | grep '*' | uniq | awk '{print $1}' | cut -d 'x' -f2)
-screenPPI=$(xdpyinfo | grep dots | awk '{print $2}' | awk -Fx '{print $1}')
-screenwidthIN=$(bc <<< "scale = 2; $screenwidthPX / $screenPPI")
-screenheightIN=$(bc <<< "scale = 2; $screenheightPX / $screenPPI")
-screenwidthCM=$(bc <<< "scale = 0; $screenwidthIN * 2.54")
-screenheightCM=$(bc <<< "scale = 0; $screenheightIN * 2.54")
+# total resolution
+screenRes=$(xrandr | grep "current" | cut -d',' -f2);
+screenWidthPX=$(echo $screenRes | cut -d' ' -f2);
+screenHeightPX=$(echo $screenRes | cut -d' ' -f4);
 
-# Verbose for debugging
-echo ""
-echo "Configuring graphic tablet: '$tabletname'"
-echo "-----------------------------------------"
-echo "Debug information:"
-echo "Tablet size (cm) :" "$tabletareawidthCM" x "$tabletareaheightCM" 
-echo "Screen size (px) :" "$screenwidthPX" x "$screenheightPX"
-echo "Screen size (cm) :" "$screenwidthCM" x "$screenheightCM" 
-echo "Screen ppi :" "$screenPPI"
-echo "Correction factor :" "$correctionscalefactor"
-echo ""
+xrandrOut=$(xrandr --current | grep $display)
+
+# display resolution
+monitorInfo=$(echo $xrandrOut | cut -d' ' -f4)
+monitorWidthPX=$(echo $monitorInfo | cut -d'+' -f1 | cut -d 'x' -f1)
+monitorHeightPX=$(echo $monitorInfo | cut -d'+' -f1 | cut -d 'x' -f2)
+monitorXOffsetPX=$(echo $monitorInfo | cut -d'+' -f2)
+monitorYOffsetPX=$(echo $monitorInfo | cut -d'+' -f3)
+
+# display dimensions
+monitorDim=$(echo $xrandrOut | cut -d',' -f3 | sed -e 's/mm//g' | rev)
+monitorWidthMM=$(echo $monitorDim | cut -d' ' -f3 | rev);
+monitorHeightMM=$(echo $monitorDim | cut -d' ' -f1 | rev);

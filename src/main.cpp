@@ -12,17 +12,7 @@
 #include <X11/Xutil.h>
 
 
-int screenWidth,
-    screenHeight,
-    windowWidth,
-    windowHeight;
-
-Display *display;
-
-static GLuint screenshotTexture;
-
-// update vars on every event, but only render when isReady is true (every framecap frames)
-bool isReady = false;
+// for getting bitmask shift when decoding XImage format
 
 int getShift (long mask) {
     int shift = 0;
@@ -34,16 +24,20 @@ int getShift (long mask) {
     return shift;
 }
 
+
+// GLUT and Displaying
+
+static GLuint screenshotTexture;
+bool renderReady = false;
+const int framecap = 40;
+
+
+// Events
+
 bool lmousePressed = false;
 bool mousePressed = false;
-int mouseX = -1,
-    mouseY = -1;
-
-float tabletX;
-float tabletY;
-float tabletWidth;
-float tabletHeight;
-float tabletRatio;
+int mouseX = -1;
+int mouseY = -1;
 
 bool isDraggingVertex = false;
 int dragVertexX = 0;
@@ -52,39 +46,58 @@ int dragVertexY = 0;
 bool enterPressed = false;
 bool ratioPressed = false;
 
-char* filePath;
 
-const int framecap = 40;
+// Screen and Tablet
 
-// system command
+int screenWidth;
+int screenHeight;
+int monitorWidth;
+int monitorHeight;
+int monitorOffsetX;
+int monitorOffsetY;
+int windowWidth;
+int windowHeight;
 
-void refresh(int) {
-    isReady = true;
-    glutTimerFunc(1000/framecap, refresh, 0);
-}
+float tabletX;
+float tabletY;
+float tabletWidth;
+float tabletHeight;
+float tabletRealRatio;
+
+const char* scriptPath;
+
+
+
+/* FUNC START */
+
+
+// Settings
 
 void updateSettings() {
-    char buffer[200];
-    sprintf(buffer, "%s/setsize.sh %f %f %f %f", filePath, tabletX / windowWidth, tabletY / windowHeight, tabletWidth / windowWidth, tabletHeight / windowHeight);
-    FILE* pipe = popen(buffer, "r");
-    if (!pipe) std::cout << "[!] Failed to apply tablet settings.." << std::endl;
-    try {
-        while (fgets(buffer, sizeof buffer, pipe) != NULL);
-    } catch (...) {
-        pclose(pipe);
-        throw;
+    char command_buffer[200];
+    sprintf(command_buffer, "%s %f %f %f %f", scriptPath, (float) tabletX / windowWidth, (float) tabletY / windowHeight,
+            (float) tabletWidth / windowWidth, (float) tabletHeight / windowHeight);
+    int rc = system(command_buffer);
+    if (rc != 0) {
+        std::cout << "[X] Error running script.." << std::endl;
+        glutLeaveMainLoop();
     }
-    pclose(pipe);
 }
 
 void updateRatio() {
-    int adjustedTabletWidth = tabletHeight * tabletRatio;
-    if (windowWidth - tabletX < adjustedTabletWidth) tabletX = windowWidth - adjustedTabletWidth;
-    tabletWidth = adjustedTabletWidth;
+    int tabletWidth_New = tabletHeight * tabletRealRatio;
+    if (tabletWidth_New > windowWidth) {
+        tabletWidth = windowWidth -  tabletX;
+    } else {
+        if (tabletWidth_New + tabletX > windowWidth) {
+            tabletX = windowWidth - tabletWidth_New;
+        }
+        tabletWidth = tabletWidth_New;
+    }
     glutPostRedisplay();
 }
 
-// input
+// Input Handlers
 
 void onKeyboardDown(unsigned char key, int x, int y) {
     if (key == 27) {
@@ -152,7 +165,12 @@ void onMousePress(int m, int e, int x, int y) {
     mouseY = y;
 }
 
-// graphics
+// Graphics
+
+void refresh(int) {
+    renderReady = true;
+    glutTimerFunc(1000/framecap, refresh, 0);
+}
 
 void drawRect(int x1, int y1, int x2, int y2, bool filled) {
     if (filled) glBegin(GL_QUADS);
@@ -234,58 +252,56 @@ void drawTabletArea() {
 }
 
 void updateDisplay() {
-    if (!isReady) return;
+    if (!renderReady) return;
     drawBackground();
     drawTabletArea();
     glutSwapBuffers();
-    isReady = false;
+    renderReady = false;
 }
 
 void onResize(int width, int height) {
     if (width != windowWidth || windowHeight != height) {
         glutReshapeWindow(windowWidth, windowHeight);
-        isReady = true;
+        renderReady = true;
         updateDisplay();
         glutSwapBuffers();
     }
 }
 
-//setup
+// Setup
 
 void initGlut(int argc, char** argv) {
-    // glutInit(nullptr, 0);
+    // init glut
     glutInit(&argc, argv);
     glutInitDisplayMode( GLUT_RGB | GLUT_DOUBLE);
 
-    screenWidth = glutGet(GLUT_SCREEN_WIDTH);
-    screenHeight = glutGet(GLUT_SCREEN_HEIGHT);
-    windowWidth = screenWidth / 2.f;
-    windowHeight = screenHeight / 2.f;
-
     // get screenshot before window opens
-    display = XOpenDisplay((char *) NULL);
-    XImage *image = XGetImage(display, XRootWindow(display, XDefaultScreen(display)), 0, 0, screenWidth, screenHeight, AllPlanes, XYPixmap);
+    Display* display = XOpenDisplay(nullptr);
+    XImage *image = XGetImage(display, XRootWindow(display, XDefaultScreen(display)), monitorOffsetX, monitorOffsetY, monitorWidth, monitorHeight, AllPlanes, XYPixmap);
 
+    // calculate bit mask shifts
     int blue_shift = getShift(image->blue_mask);
     int red_shift = getShift(image->red_mask);
     int green_shift = getShift(image->green_mask);
 
-    unsigned char* screenshot = new unsigned char[3 * screenWidth * screenHeight];
-
-    for (int x = 0; x < screenWidth; x++) {
-        for (int y = 0; y < screenHeight; y++) {
+    // convert screenshot to rgb byte array
+    unsigned char* screenshot = new unsigned char[3 * monitorWidth * monitorHeight];
+    for (int x = 0; x < monitorWidth; x++) {
+        for (int y = 0; y < monitorHeight; y++) {
             unsigned long pixel = XGetPixel(image, x, y);
-            unsigned char* pix = screenshot + 3 * (y * screenWidth + x);
+            unsigned char* pix = &screenshot[3 * (y * monitorWidth + x)];
             pix[0] = ((pixel & image->red_mask) >> red_shift) / 3.f;
             pix[1] = ((pixel & image->green_mask) >> green_shift) / 3.f;
             pix[2] = ((pixel & image->blue_mask) >> blue_shift) / 3.f;
         }
     }
 
+    // set window properties
     glutInitWindowSize(windowWidth, windowHeight);
-    glutInitWindowPosition(100, 100);
+    glutInitWindowPosition(monitorOffsetX + monitorWidth / 4.f, monitorOffsetY + monitorHeight / 4.f);
     glutCreateWindow("Wacom Tool");
 
+    // set event handlers
     glutDisplayFunc(updateDisplay);
     glutMotionFunc(onMouseMove);
     glutMouseFunc(onMousePress);
@@ -293,101 +309,76 @@ void initGlut(int argc, char** argv) {
     glutKeyboardUpFunc(onKeyboardUp);
     glutReshapeFunc(onResize);
 
+    // glut settings
     glClearColor(0, 0, 0, 0);
     gluOrtho2D(0, windowWidth, windowHeight, 0);
-
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glShadeModel(GL_FLAT);
 
+    // create screenshot texture
     glGenTextures(1, &screenshotTexture);
     glBindTexture(GL_TEXTURE_2D, screenshotTexture);
-
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, monitorWidth, monitorHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, screenshot);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, screenWidth, screenHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, screenshot);
-
-    delete [] screenshot;
+    // cleanup
+    XDestroyImage(image);
+    XCloseDisplay(display);
+    delete[] screenshot;
 }
 
-void cleanUp() {
+void cleanup() {
+    glDeleteTextures(1, &screenshotTexture);
 }
 
 int main(int argc, char** argv) {
-    if (argc != 2 && argc != 6) {
-        std::cout << "USAGE: " << argv[0] << " <path of setsize.sh> [<prev_x> <prev_y> <prev_width> <prev_height>]!" << std::endl;
+    if (argc != 7 && argc != 11) {
+        std::cout << "USAGE: " << argv[0] << " <apply_script> <tablet_ratio> <mon_offx> <mon_offy> <mon_width> <mon_height> [<prev_x> <prev_y> <prev_width> <prev_height>]!" << std::endl;
         return 1;
     }
 
-    filePath = argv[1];
+    // parse arguments
+    try {
+        scriptPath = argv[1];
+        tabletRealRatio = std::stof(argv[2]);
 
-    // read settings from file
-    char buffer[200];
-    snprintf(buffer, 200, "%s/.settings", filePath);
-    std::ifstream ifile(buffer);
-    if (!ifile.is_open()) {
-        std::cout << "cant read from 'settings' file ... exiting!" << std::endl;
+        monitorOffsetX = std::stoi(argv[3]);
+        monitorOffsetY = std::stoi(argv[4]);
+        monitorWidth = std::stoi(argv[5]);
+        monitorHeight = std::stoi(argv[6]);
+
+        windowWidth = monitorWidth / 2.f;
+        windowHeight = monitorHeight / 2.f;
+
+        if (argc == 11) {
+            tabletX = windowWidth * std::stof(argv[7]);
+            tabletY = windowHeight * std::stof(argv[8]);
+            tabletWidth = windowWidth * std::stof(argv[9]);
+            tabletHeight = windowHeight * std::stof(argv[10]);
+        } else {
+            tabletX = windowWidth / 4;
+            tabletY = windowWidth / 4;
+            tabletWidth = windowWidth / 2;
+            tabletHeight = windowWidth / 2;
+        }
+    } catch (std::exception& e) {
+        std::cerr << "[X] Failed to parse input params" << std::endl;
         return 1;
     }
-
-    // parse first two lines of file
-    float tabletWidthRaw, tabletHeightRaw;
-    char floatStrings[2][100];
-    int lineCounter = 0, 
-        charCounter = 0;
-    char c;
-    bool beginRead = false;
-    while (ifile.get(c) && lineCounter < 2) {
-        if (beginRead) {
-            floatStrings[lineCounter][charCounter] = c;
-            charCounter++;
-        }
-
-        if (c == '=') {
-            beginRead = true;
-        } else if (c == '\n') {
-            floatStrings[lineCounter][charCounter] = 0;
-            lineCounter++;
-            charCounter = 0;
-            beginRead = false;
-        }
-    }
-    ifile.close();
-    tabletWidthRaw = atof(floatStrings[0]);
-    tabletHeightRaw = atof(floatStrings[1]);
-
-    tabletRatio = tabletWidthRaw / tabletHeightRaw;
 
     initGlut(argc, argv);
 
-    if (argc == 6) {
-        // check if arguments are numbers
-        long int nums[4];
-        char* pEnd;
-        for (int i = 2; i < 6; i++) {
-            nums[i-2] = strtol(argv[i], &pEnd, 10);
-            if (nums[i-2] == 0 && argv[i][0] != '0') {
-                std::cout << "invalid format for screen pixel values" << std::endl;
-                return 1;
-            }
-        }
-        // since window dims are half of screen dims
-        tabletX = nums[0] / 2;
-        tabletY = nums[1] / 2;
-        tabletWidth = nums[2] / 2;
-        tabletHeight = nums[3] / 2;
-    } else {
-        tabletX = windowWidth / 4;
-        tabletY = windowHeight / 4;
-        tabletWidth = windowWidth / 2;
-        tabletHeight = windowHeight / 2;
-    }
+    // register cleanup of texture
+    if (atexit(cleanup)) {
+        std::cerr << "[X] Unable to setup garbage collection, exiting.." << std::endl;
+        return 1;
+    };
 
     refresh(0);
     glutMainLoop();
-    cleanUp();
     return 0;
 }
