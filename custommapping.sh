@@ -23,6 +23,21 @@ echo ""
 read -n 1 -s -r -p "Press Any Key to Continue.."
 echo ""
 
+echo ""
+echo "Configuring graphic tablet: '$tabletName'"
+echo "-----------------------------------------"
+echo "General debug information:"
+echo "Screen size (px)          :" "$screenWidthPX" x "$screenHeightPX"
+echo "Monitor size (px)         :" "$monitorWidthPX" x "$monitorHeightPX"
+echo "Tablet size (mm)          :" "$tabletWidthMM" x "$tabletHeightMM" 
+echo "Monitor size (mm)         :" "$monitorWidthMM" x "$monitorHeightMM" 
+echo ""
+
+if [ -z "$monitorWidthPX" ]; then
+    echo "[X] Failed to parse monitor settings"
+    exit 1
+fi
+
 # check if settings have been set before
 if [ -f "$SCRIPTPATH/.lastset" ]; then
     $SCRIPTPATH/src/tablet-tool "$SCRIPTPATH/apply.sh" $tabletRatio $monitorXOffsetPX $monitorYOffsetPX $monitorWidthPX $monitorHeightPX $(cat "$SCRIPTPATH/.lastset")

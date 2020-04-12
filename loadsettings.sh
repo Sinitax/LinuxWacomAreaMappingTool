@@ -15,14 +15,14 @@ if [ -z "$tabletName" -o -z "$tabletWidthMM" -o -z "$tabletHeightMM" -o -z "$dis
 fi
 
 # total resolution
-screenRes=$(xrandr | grep "current" | cut -d',' -f2);
+screenRes=$(xrandr | head -n1 | cut -d',' -f2);
 screenWidthPX=$(echo $screenRes | cut -d' ' -f2);
 screenHeightPX=$(echo $screenRes | cut -d' ' -f4);
 
 xrandrOut=$(xrandr --current | grep $display)
 
 # display resolution
-monitorInfo=$(echo $xrandrOut | cut -d' ' -f4)
+monitorInfo=$(echo $xrandrOut | sed -e "s/ /\n/g" | grep -e ".*x.*+.\++.\+")
 monitorWidthPX=$(echo $monitorInfo | cut -d'+' -f1 | cut -d 'x' -f1)
 monitorHeightPX=$(echo $monitorInfo | cut -d'+' -f1 | cut -d 'x' -f2)
 monitorXOffsetPX=$(echo $monitorInfo | cut -d'+' -f2)
