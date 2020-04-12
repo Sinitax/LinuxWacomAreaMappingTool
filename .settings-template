@@ -1,10 +1,8 @@
-tabletareawidthCM=21.6
-tabletareaheightCM=13.5
+# Example settings:
+#   WACOM ONE: 216 135  -> Wacom Bamboo One M Pen stylus
+#   XP-PEN:    160 100  -> XPPEN Tablet Pen (0)
 
-# IMPORTANT: DONT change the spacing of the lines
-# example sizes:
-# wacom one      : 21.6x13.6
-# xppen star 640 : 16x10
-
-tabletname=""
-correctionscalefactor=1
+tabletName="..."
+tabletWidthMM=
+tabletHeightMM=
+display=
