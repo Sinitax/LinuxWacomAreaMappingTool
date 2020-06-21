@@ -3,9 +3,10 @@
 # attempts to create a 1:1 matching between tablet size and monitor
 
 
-SCRIPTPATH="$(dirname "$(realpath "$0")")"
+SCRIPTPATH="$(dirname $(readlink -f "$0"))"
+REPOPATH=$SCRIPTPATH/..
 
-source $SCRIPTPATH/loadsettings.sh
+source $REPOPATH/scripts/loadsettings.sh
 
 if [ $((tabletWidthMM)) -gt $((monitorWidthMM)) -o $((tabletHeightMM)) -gt $((monitorHeightMM)) ]; then
     echo "[X] Unable to establish 1:1 relation, monitor is to small"

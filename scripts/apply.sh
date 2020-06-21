@@ -12,8 +12,12 @@ tabletHeightRelMon=$4
 
 set -e
 
-SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
-source $SCRIPTPATH/loadsettings.sh
+SCRIPTPATH="$(dirname $(readlink -f "$0"))"
+REPOROOT="$SCRIPTPATH/.."
+LOADSETTINGS_PATH="$REPOROOT/scripts/loadsettings.sh"
+LASTSET_PATH="$REPOROOT/.lastset"
+
+source "$LOADSETTINGS_PATH"
 
 # convert monitor relative offset to ones relative to screen
 tabletXOffsetRelScr=$(bc <<< "scale = 3;
@@ -38,4 +42,4 @@ echo ""
 xinput set-prop "$tabletName" --type=float "Coordinate Transformation Matrix" $tabletWidthRelScr 0 $tabletXOffsetRelScr 0 $tabletHeightRelScr $tabletYOffsetRelScr 0 0 1
 
 # save settings in PX in .lastset
-echo "$tabletXOffsetRelMon $tabletYOffsetRelMon $tabletWidthRelMon $tabletHeightRelMon" > "$SCRIPTPATH/.lastset"
+echo "$tabletXOffsetRelMon $tabletYOffsetRelMon $tabletWidthRelMon $tabletHeightRelMon" > "$LASTSET_PATH"

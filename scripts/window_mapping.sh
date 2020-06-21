@@ -1,18 +1,30 @@
 #!/bin/bash
 
-SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
+SCRIPTPATH="$(dirname $(readlink -f "$0"))"
+REPOROOT="$SCRIPTPATH/.."
+WINDOW_MAPPING_PATH="$REPOROOT/source/bin/window_mapping"
+LOADSETTINGS_PATH="$REPOROOT/scripts/loadsettings.sh"
 
 # load settings
-source $SCRIPTPATH/loadsettings.sh
+source "$LOADSETTINGS_PATH"
 
 # check if binary has been built
-if [ ! -f $SCRIPTPATH/src/tablet-tool ]; then
-    echo "[!] You must first build the binary in the src directory"
-    exit 1
+if [ ! -f "$WINDOW_MAPPING_PATH" ]; then
+    echo "[*] Tablet tool binary is missing, attempting to build.."
+    make -C source
+    if [ $? -ne 0 ]; then
+        echo "[X] Build failed."
+        exit 1
+    fi
 fi
 
 # get tablet ratio for mapping
 tabletRatio=$(bc <<< "scale = 3; $tabletWidthMM / $tabletHeightMM")
+
+if [ -z "$monitorWidthPX" ]; then
+    echo "[X] Failed to parse monitor settings"
+    exit 1
+fi
 
 # warning messages
 echo "[!] Do NOT resize the GUI, it is supposed to have the same ratio as your screen!"
@@ -33,14 +45,10 @@ echo "Tablet size (mm)          :" "$tabletWidthMM" x "$tabletHeightMM"
 echo "Monitor size (mm)         :" "$monitorWidthMM" x "$monitorHeightMM" 
 echo ""
 
-if [ -z "$monitorWidthPX" ]; then
-    echo "[X] Failed to parse monitor settings"
-    exit 1
-fi
-
 # check if settings have been set before
-if [ -f "$SCRIPTPATH/.lastset" ]; then
-    $SCRIPTPATH/src/tablet-tool "$SCRIPTPATH/apply.sh" $tabletRatio $monitorXOffsetPX $monitorYOffsetPX $monitorWidthPX $monitorHeightPX $(cat "$SCRIPTPATH/.lastset")
+if [ -f "$REPOROOT/.lastset" ]; then
+    args="$tabletRatio $monitorXOffsetPX $monitorYOffsetPX $monitorWidthPX $monitorHeightPX $(cat "$REPOROOT/.lastset")"
 else
-    $SCRIPTPATH/src/tablet-tool "$SCRIPTPATH/apply.sh" $tabletRatio $monitorXOffsetPX $monitorYOffsetPX $monitorWidthPX $monitorHeightPX
+    args="$tabletRatio $monitorXOffsetPX $monitorYOffsetPX $monitorWidthPX $monitorHeightPX"
 fi
+$WINDOW_MAPPING_PATH "$REPOROOT/scripts/apply.sh" $args

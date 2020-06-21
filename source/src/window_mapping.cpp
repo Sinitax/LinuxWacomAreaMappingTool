@@ -299,7 +299,7 @@ void initGlut(int argc, char** argv) {
     // set window properties
     glutInitWindowSize(windowWidth, windowHeight);
     glutInitWindowPosition(monitorOffsetX + monitorWidth / 4.f, monitorOffsetY + monitorHeight / 4.f);
-    glutCreateWindow("Wacom Tool");
+    glutCreateWindow("Tablet Tool");
 
     // set event handlers
     glutDisplayFunc(updateDisplay);

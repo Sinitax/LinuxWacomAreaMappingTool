@@ -1,13 +1,15 @@
 #!/bin/bash
 
-SCRIPTPATH="$(dirname "$(realpath "$0")")"
+SCRIPTPATH="$(dirname $(readlink -f "$0"))"
+REPOROOT="$SCRIPTPATH/.."
+SETTINGS_PATH="$REPOROOT/.settings"
 
-if [ ! -e $SCRIPTPATH/.settings ];then
+if [ ! -e "$SETTINGS_PATH" ];then
     echo "[X] Copy .settings-template to .settings and modify it."
     exit 1
 fi
 
-source $SCRIPTPATH/.settings
+source "$SETTINGS_PATH"
 
 if [ -z "$tabletName" -o -z "$tabletWidthMM" -o -z "$tabletHeightMM" -o -z "$display" ]; then
     echo "[X] Settings file not complete!"
