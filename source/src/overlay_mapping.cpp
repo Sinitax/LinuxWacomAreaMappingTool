@@ -58,7 +58,7 @@ void updateDisplay();
 long get_millis() {
     return std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::system_clock::now().time_since_epoch()
-        ).count();
+            ).count();
 }
 
 void sleep(long millis) {
@@ -138,6 +138,8 @@ void updateRatio() {
 void drawTabletArea() {
     glColor4f(0.9f, 0.9f, 0.9f, 0.5f);
     drawRect(tabletX, tabletY, tabletX + tabletWidth, tabletY + tabletHeight, true);
+    glColor4f(0.f, 0.f, 0.f, 0.5f);
+    drawRect(tabletX, tabletY, tabletX + tabletWidth, tabletY + tabletHeight, false);
 }
 
 void updateLogic() {
@@ -216,12 +218,12 @@ void createWindow() {
     attrs.border_pixel = 0;
 
     overlay = XCreateWindow(
-        dpy, root,
-        monitorOffsetX, monitorOffsetY, windowWidth, windowHeight, 0,
-        vinfo.depth, InputOutput,
-        vinfo.visual,
-        CWOverrideRedirect | CWColormap | CWBackPixel | CWBorderPixel, &attrs
-    );
+            dpy, root,
+            monitorOffsetX, monitorOffsetY, windowWidth, windowHeight, 0,
+            vinfo.depth, InputOutput,
+            vinfo.visual,
+            CWOverrideRedirect | CWColormap | CWBackPixel | CWBorderPixel, &attrs
+            );
 
     // XStoreName(dpy, overlay, "Tablet Area Display");
 
@@ -237,7 +239,7 @@ void setupGL() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glShadeModel(GL_FLAT);
-    glLineWidth(3.f);
+    glLineWidth(2.f);
 }
 
 void cleanup() {
