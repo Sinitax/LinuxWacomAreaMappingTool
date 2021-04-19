@@ -277,7 +277,10 @@ void initGlut(int argc, char** argv) {
 
     // get screenshot before window opens
     Display* display = XOpenDisplay(nullptr);
-    XImage *image = XGetImage(display, XRootWindow(display, XDefaultScreen(display)), monitorOffsetX, monitorOffsetY, monitorWidth, monitorHeight, AllPlanes, XYPixmap);
+    XImage *image = XGetImage(display,
+            XRootWindow(display, XDefaultScreen(display)),
+            monitorOffsetX, monitorOffsetY, monitorWidth,
+            monitorHeight, AllPlanes, XYPixmap);
 
     // calculate bit mask shifts
     int blue_shift = getShift(image->blue_mask);

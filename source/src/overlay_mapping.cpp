@@ -207,7 +207,7 @@ void createWindow() {
 
     GLint attributes[] = { GLX_RGBA, GLX_DEPTH_SIZE, 32, GLX_DOUBLEBUFFER, None };
     XVisualInfo vinfo;
-    if (!XMatchVisualInfo(dpy, DefaultScreen(dpy), 32, TrueColor, &vinfo)) {
+    if (!XMatchVisualInfo(dpy, DefaultScreen(dpy), 32, TrueColor, &vinfo) || !vinfo.visual) {
         throw std::runtime_error("No visual found supporting 32 bit color");
     }
 
@@ -215,15 +215,12 @@ void createWindow() {
     attrs.override_redirect = true;
     attrs.colormap = XCreateColormap(dpy, root, vinfo.visual, AllocNone);
     attrs.background_pixel = 0;
+    attrs.background_pixmap = None;
     attrs.border_pixel = 0;
 
-    overlay = XCreateWindow(
-            dpy, root,
-            monitorOffsetX, monitorOffsetY, windowWidth, windowHeight, 0,
-            vinfo.depth, InputOutput,
-            vinfo.visual,
-            CWOverrideRedirect | CWColormap | CWBackPixel | CWBorderPixel, &attrs
-            );
+    overlay = XCreateWindow(dpy, root, monitorOffsetX, monitorOffsetY,
+            windowWidth, windowHeight, 0, vinfo.depth, InputOutput, vinfo.visual,
+            CWOverrideRedirect | CWColormap | CWBackPixmap | CWBackPixel | CWBorderPixel, &attrs);
 
     // XStoreName(dpy, overlay, "Tablet Area Display");
 

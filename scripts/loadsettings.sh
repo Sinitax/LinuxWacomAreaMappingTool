@@ -5,7 +5,8 @@ REPOROOT="$SCRIPTPATH/.."
 SETTINGS_PATH="$REPOROOT/.settings"
 
 if [ ! -e "$SETTINGS_PATH" ];then
-    echo "[X] Copy .settings-template to .settings and modify it."
+    cp "$REPOROOT/.settings-template" "$SETTINGS_PATH"
+    echo "[!] Created .settings file.. configure and re-run"
     exit 1
 fi
 

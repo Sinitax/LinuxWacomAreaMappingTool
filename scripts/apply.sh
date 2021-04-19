@@ -20,13 +20,13 @@ LASTSET_PATH="$REPOROOT/.lastset"
 source "$LOADSETTINGS_PATH"
 
 # convert monitor relative offset to ones relative to screen
-tabletXOffsetRelScr=$(bc <<< "scale = 3;
+tabletXOffsetRelScr=$(bc <<< "scale = 5;
     ($monitorXOffsetPX + $tabletXOffsetRelMon * $monitorWidthPX) / $screenWidthPX")
-tabletYOffsetRelScr=$(bc <<< "scale = 3;
+tabletYOffsetRelScr=$(bc <<< "scale = 5;
     ($monitorYOffsetPX + $tabletYOffsetRelMon * $monitorHeightPX) / $screenHeightPX")
-tabletWidthRelScr=$(bc <<< "scale = 3;
+tabletWidthRelScr=$(bc <<< "scale = 5;
     $tabletWidthRelMon * $monitorWidthPX / $screenWidthPX")
-tabletHeightRelScr=$(bc <<< "scale = 3;
+tabletHeightRelScr=$(bc <<< "scale = 5;
     $tabletHeightRelMon * $monitorHeightPX / $screenHeightPX")
 
 # Verbose for debugging

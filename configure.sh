@@ -5,6 +5,11 @@
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 REPOROOT="$SCRIPTPATH"
 
+if [ -z "$(which xinput)" ]; then
+    echo "Please install xorg-xinput first"
+    exit 1
+fi
+
 if [ $# -lt 1 ]; then
     echo "Please supply a command"
     exit 1
