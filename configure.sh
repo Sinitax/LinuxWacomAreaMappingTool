@@ -23,6 +23,8 @@ elif [ "$1" == "overlay" ]; then
     target="scripts/overlay_mapping.sh"
 elif [ "$1" == "recover" ]; then
     target="scripts/recover.sh"
+elif [ "$1" == "monitor" ]; then
+    target="scripts/tablet-reset.sh"
 else
     echo "Command not found"
     exit 1

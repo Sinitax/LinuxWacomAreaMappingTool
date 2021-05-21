@@ -2,12 +2,13 @@
 
 A graphical tool to configure graphic tablets through xinput.
 
-Following utilities are available in the `scripts` directory:
+Use the central `configure.sh` to do one of the following:
 
-- `configure.sh` to graphically configure the tablet area mapping
-- `precision.sh` to generate a 1 : 1 mapping for tablet area to screen area
-- `recover.sh` to apply setting configured on previous run
-- `tablet-reset.sh` to wait for tablet to be plugged in before previous settings are applied
+- `window`: change the tablet area mapping in a graphical window
+- `overlay`: change the tablet area mapping with a graphical screen overlay (experimental)
+- `precision`: apply a 1 : 1 mapping for tablet area to screen area at the current position
+- `recover`: apply setting configured on a previous run
+- `monitor`: apply settings every time a new pointer device is pluged in (good for .xprofile)
 
 ### Demo
 
