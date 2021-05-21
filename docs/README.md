@@ -14,11 +14,11 @@ Use the central `configure.sh` to do one of the following:
 
 Graphical Configuration:
 
-<img alt="Graphical Interface" src="/docs/media/interface.gif" width="600" height="340">
+<img alt="Graphical Interface" src="/docs/media/interface.gif" width="100%" height="440">
 
 1 to 1 Mapping:
 
-<img alt="Precision Mapping" src="/docs/media/precision.gif" width="600" height="340">
+<img alt="Precision Mapping" src="/docs/media/precision.gif" width="100%" height="440">
 
 ### Dependencies
 
