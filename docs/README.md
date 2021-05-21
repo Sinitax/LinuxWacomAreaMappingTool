@@ -1,8 +1,8 @@
-## Xinput Tablet Tool
+## Graphic Tablet Tool
 
-A graphical tool to configure graphic tablets through xinput.
+A tool for configuring graphic tablets through xinput.
 
-Use the central `configure.sh` to do one of the following:
+Use `configure.sh` to do one of the following:
 
 - `window`: change the tablet area mapping in a graphical window
 - `overlay`: change the tablet area mapping with a graphical screen overlay (experimental)
