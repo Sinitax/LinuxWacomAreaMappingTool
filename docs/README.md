@@ -10,13 +10,7 @@ Use `configure.sh` to do one of the following:
 - `recover`: apply setting configured on a previous run
 - `monitor`: apply settings every time a new pointer device is pluged in (good for .xprofile)
 
-### Demo
-
-Graphical Configuration:
-
-<img alt="Graphical Interface" src="/docs/media/interface.gif" width="100%" height="440">
-
-1 to 1 Mapping:
+### Precision Mapping
 
 <img alt="Precision Mapping" src="/docs/media/precision.gif" width="100%" height="440">
 
